@@ -77,7 +77,7 @@ def test_apply_file_config(mock_extract):
         'skip_file': False
     }
 
-    orig = config.Config(reporter='', plugins=[], rules={'foo': {}, 'bar': {}})
+    orig = config.Config(reporter='', plugins=[], rules={'foo': {}, 'bar': {}}, skip={})
     base = copy.deepcopy(orig)
 
     modified = config.apply_file_config(base, 'file_name')
@@ -96,12 +96,12 @@ def test_apply_file_config_with_skip_file(mock_extract):
         'skip_file': True
     }
 
-    orig = config.Config(reporter='', plugins=[], rules={})
+    orig = config.Config(reporter='', plugins=[], rules={}, skip={'file_name': []})
     base = copy.deepcopy(orig)
 
     modified = config.apply_file_config(base, 'file_name')
 
-    assert modified is None
+    assert modified.skip == {'file_name': []}
 
 
 @patch('squabble.config._get_vcs_root')

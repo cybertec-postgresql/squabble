@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 Config = collections.namedtuple('Config', [
     'reporter',
     'plugins',
-    'rules'
+    'rules',
+    'skip'
 ])
 
 
@@ -23,7 +24,8 @@ Config = collections.namedtuple('Config', [
 DEFAULT_CONFIG = dict(
     reporter='plain',
     plugins=[],
-    rules={}
+    rules={},
+    skip={}
 )
 
 PRESETS = {
@@ -189,7 +191,8 @@ def load_config(config_file, preset_names=None, reporter_name=None):
     return Config(
         reporter=reporter_name or config.get('reporter', base.reporter),
         plugins=config.get('plugins', base.plugins),
-        rules=rules
+        rules=rules,
+        skip=config.get('skip', {})
     )
 
 
