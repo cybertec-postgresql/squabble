@@ -116,7 +116,7 @@ _COLOR_FORMAT = '{bold}{{file}}:{reset}{{line}}:{{column}}{reset} '\
 @reporter("plain")
 def plain_text_reporter(issue, file_contents):
     """Simple single-line output format that is easily parsed by editors."""
-    info = _issue_info(issue, file_contents)
+    info = _issue_info(issue)
     return [
         _SIMPLE_FORMAT.format(**info)
     ]
@@ -136,7 +136,7 @@ def color_reporter(issue, file_contents):
     Extension of :func:`squabble.reporter.plain_text_reporter`, uses
     ANSI color and shows error location.
     """
-    info = _issue_info(issue, file_contents)
+    info = _issue_info(issue)
     info['severity'] = '{color}{severity}{reset}'.format(
         color=_SEVERITY_COLOR[issue.severity],
         severity=issue.severity.name,
@@ -194,7 +194,7 @@ def sqlint_reporter(issue, file_contents):
 
     error_level = {Severity.HIGH, Severity.CRITICAL}
 
-    info = _issue_info(issue, file_contents)
+    info = _issue_info(issue)
     info['severity'] = 'ERROR' if issue.severity in error_level else 'WARNING'
 
     return [

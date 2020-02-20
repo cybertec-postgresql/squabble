@@ -49,7 +49,7 @@ def test_snapshot(file_name):
     assert len(issues) == len(expected)
 
     for i, e in zip(issues, expected):
-        info = reporter._issue_info(i, contents)
+        info = reporter._issue_info(i)
         actual = {
             k: info.get(k)
             for k in e.keys()

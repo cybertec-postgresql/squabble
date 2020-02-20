@@ -106,7 +106,8 @@ def run_linter(base_config, paths, expanded):
     issues = []
     for file_name, contents in files:
         file_config = config.apply_file_config(base_config, file_name, contents)
-        if file_config is None:
+        # The file should be skipped if no specific line is ignored
+        if file_config.skip.get(file_name) == []:
             continue
         issues += lint.check_file(file_config, file_name, contents)
 
