@@ -13,7 +13,10 @@ _LintIssue = collections.namedtuple('_LintIssue', [
     'node',
     'file',
     'severity',
-    'location'
+    'line_text',
+    'line',
+    'column',
+    'abs_location'
 ])
 
 # Make all the fields nullable

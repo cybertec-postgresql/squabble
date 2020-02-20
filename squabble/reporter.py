@@ -149,17 +149,13 @@ def _format_message(issue):
     return issue.message.format()
 
 
-def _issue_info(issue, file_contents):
+def _issue_info(issue):
     """Return a dictionary of metadata for an issue."""
-    line, line_num, column = _issue_to_file_location(issue, file_contents)
     formatted = _format_message(issue)
 
     return {
         **issue._asdict(),
         **(issue.message.asdict() if issue.message else {}),
-        'line_text': line,
-        'line': line_num,
-        'column': column,
         'message_formatted': formatted,
         'severity': issue.severity.name,
     }
