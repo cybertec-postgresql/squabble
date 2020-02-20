@@ -206,3 +206,56 @@ class Context:
             # This is filled in later
             file=None,
         ))
+
+def _location_for_issue(issue):
+    """
+    Return the offset into the file for this issue, or None if it
+    cannot be determined.
+    """
+    if issue.node and issue.node.location != pglast.Missing:
+        return issue.node.location.value
+
+    if issue.abs_location is not None:
+        return issue.abs_location
+
+    return None
+
+
+def _resolve_location(location, contents):
+    """
+    Given a location and the contents of the file, 
+    return the ``(line_str, line, column)`` that node is located at,
+    or ``('', 1, 0)``.
+
+    :param issue:
+    :type issue: :int:
+    :param contents: Full contents of the file being linted, as a string.
+    :type contents: str
+
+    >>> from squabble.lint import LintIssue
+
+    >>> sql = '1234\\n678\\nABCD'
+    >>> _resolve_location(8, sql)
+    ('678', 2, 3)
+
+    >>> sql = '1\\r\\n\\r\\n678\\r\\nBCD'
+    >>> _resolve_location(7, sql)
+    ('678', 3, 2)
+    """
+    if location is None or location >= len(contents):
+        return ("", 1, 0)
+
+    # line number is number of newlines in the file before this
+    # locationation, 1 indexed.
+    line_num = contents[:location].count("\n") + 1
+
+    # Search forwards/backwards for the first newline before and first
+    # newline after this point.
+    line_start = contents.rfind("\n", 0, location) + 1
+    line_end = contents.find("\n", location)
+
+    # Strip out \r so we can treat \r\n and \n the same way
+    line = contents[line_start:line_end].replace("\r", "")
+    column = location - line_start
+
+    return (line, line_num, column)

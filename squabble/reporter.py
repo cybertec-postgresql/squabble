@@ -82,62 +82,6 @@ def report(reporter_name, issues, files):
             _print_err(line)
 
 
-def _location_for_issue(issue):
-    """
-    Return the offset into the file for this issue, or None if it
-    cannot be determined.
-    """
-    if issue.node and issue.node.location != pglast.Missing:
-        return issue.node.location.value
-
-    return issue.location
-
-
-def _issue_to_file_location(issue, contents):
-    """
-    Given an issue (which may or may not have a :class:`pglast.Node` with a
-    ``location`` field) and the contents of the file containing that
-    node, return the ``(line_str, line, column)`` that node is located at,
-    or ``('', 1, 0)``.
-
-    :param issue:
-    :type issue: :class:`squabble.lint.LintIssue`
-    :param contents: Full contents of the file being linted, as a string.
-    :type contents: str
-
-    >>> from squabble.lint import LintIssue
-
-    >>> issue = LintIssue(location=8, file='foo')
-    >>> sql = '1234\\n678\\nABCD'
-    >>> _issue_to_file_location(issue, sql)
-    ('678', 2, 3)
-
-    >>> issue = LintIssue(location=7, file='foo')
-    >>> sql = '1\\r\\n\\r\\n678\\r\\nBCD'
-    >>> _issue_to_file_location(issue, sql)
-    ('678', 3, 2)
-    """
-    loc = _location_for_issue(issue)
-
-    if loc is None or loc >= len(contents):
-        return ('', 1, 0)
-
-    # line number is number of newlines in the file before this
-    # location, 1 indexed.
-    line_num = contents[:loc].count('\n') + 1
-
-    # Search forwards/backwards for the first newline before and first
-    # newline after this point.
-    line_start = contents.rfind('\n', 0, loc) + 1
-    line_end = contents.find('\n', loc)
-
-    # Strip out \r so we can treat \r\n and \n the same way
-    line = contents[line_start:line_end].replace('\r', '')
-    column = loc - line_start
-
-    return(line, line_num, column)
-
-
 def _print_err(msg):
     print(msg, file=sys.stderr)
 
