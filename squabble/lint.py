@@ -76,7 +76,7 @@ def check_file(config, name, contents):
     ``name``.
     """
     rules = _configure_rules(config.rules)
-    s = Session(rules, contents, file_name=name)
+    s = Session(rules, config.skip, contents, name)
     return s.lint()
 
 
@@ -86,15 +86,27 @@ class Session:
     class exists mainly to hold the list of issues returned by the enabled
     rules.
     """
-    def __init__(self, rules, sql_text, file_name):
+
+    def __init__(self, rules, skips, sql_text, file_name):
         self._rules = rules
+        self._skips = skips
         self._sql = sql_text
         self._issues = []
         self._file_name = file_name
 
     def report_issue(self, issue):
-        i = issue._replace(file=self._file_name)
-        self._issues.append(i)
+        line_text, line, column = _resolve_location(
+            _location_for_issue(issue), 
+            self._sql
+        )
+        i = issue._replace(file=self._file_name)._replace(
+            line_text=line_text, line=line, column=column
+        )
+
+        should_skip = line in self._skips.get(self._file_name, [])
+
+        if not should_skip:
+            self._issues.append(i)
 
     def lint(self):
         """
@@ -114,7 +126,7 @@ class Session:
             root_ctx.report_issue(LintIssue(
                 severity=Severity.CRITICAL,
                 message_text=exc.args[0],
-                location=exc.location
+                abs_location=exc.location
             ))
 
         return self._issues
