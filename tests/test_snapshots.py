@@ -42,7 +42,7 @@ def test_snapshot(file_name):
         pytest.skip('no output configured')
 
     base_cfg = config.get_base_config()
-    cfg = config.apply_file_config(base_cfg, contents)
+    cfg = config.apply_file_config(base_cfg, file_name, contents)
 
     issues = lint.check_file(cfg, file_name, contents)
 
@@ -74,7 +74,7 @@ def test_reporter_sanity(reporter_name):
             contents = fp.read()
             files[file_name] = contents
 
-        cfg = config.apply_file_config(base_cfg, contents)
+        cfg = config.apply_file_config(base_cfg, file_name, contents)
         issues.extend(lint.check_file(cfg, file_name, contents))
 
     reporter.report(reporter_name, issues, files)

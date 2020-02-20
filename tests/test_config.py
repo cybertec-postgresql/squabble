@@ -83,7 +83,7 @@ def test_apply_file_config(mock_extract):
     orig = config.Config(reporter='', plugins=[], rules={'foo': {}, 'bar': {}}, skip={})
     base = copy.deepcopy(orig)
 
-    modified = config.apply_file_config(base, 'file_name')
+    modified = config.apply_file_config(base, 'file_name', 'file_name')
 
     assert modified.rules == {'foo': {}, 'baz': {'a': 1}}
 
@@ -103,7 +103,7 @@ def test_apply_file_config_with_skip_file(mock_extract):
     orig = config.Config(reporter='', plugins=[], rules={}, skip={'file_name': []})
     base = copy.deepcopy(orig)
 
-    modified = config.apply_file_config(base, 'file_name')
+    modified = config.apply_file_config(base, 'file_name', 'file_name')
 
     assert modified.skip == {'file_name': []}
 

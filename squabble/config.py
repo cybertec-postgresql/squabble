@@ -201,21 +201,17 @@ def load_config(config_file, preset_names=None, reporter_name=None):
     )
 
 
-def apply_file_config(base, contents):
+def apply_file_config(base, file_name, contents):
     """
     Given a base configuration object and the contents of a file,
     return a new config that applies any file-specific rule
     additions/deletions.
-
-    Returns ``None`` if the file should be skipped.
     """
     # Operate on a copy so we don't mutate the base config
     file_rules = copy.deepcopy(base.rules)
+    skips = copy.deepcopy(base.skip)
 
     rules = _extract_file_rules(contents)
-
-    if rules['skip_file']:
-        return None
 
     for rule, opts in rules['enable'].items():
         file_rules[rule] = opts
@@ -223,7 +219,17 @@ def apply_file_config(base, contents):
     for rule in rules['disable']:
         del file_rules[rule]
 
-    return base._replace(rules=file_rules)
+    for line in rules['skip_lines']:
+        if skips.get(file_name) is None:
+            skips[file_name] = []
+        skips[file_name].append(line)
+
+    # Handle 'skip_file' after 'skip_lines', as it should be seen as
+    # an override
+    if rules['skip_file']:
+        skips = {**skips, file_name: []}
+
+    return base._replace(rules=file_rules, skip=skips)
 
 
 def _extract_file_rules(text):
