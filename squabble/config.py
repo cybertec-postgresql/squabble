@@ -89,6 +89,11 @@ PRESETS = {
     }
 }
 
+COMMENT_RE = re.compile(
+    r'--\s*'
+    r'(?:squabble-)?(enable|disable)?(-next-line)?'
+    r'(?::\s*(\w+)(.*?))?'
+    r'$', re.I)
 
 class UnknownPresetException(SquabbleException):
     """Raised when user tries to apply a preset that isn't defined."""
@@ -241,26 +246,27 @@ def _extract_file_rules(text):
     rules = {
         'enable': {},
         'disable': [],
-        'skip_file': False
+        'skip_file': False,
+        'skip_lines': []
     }
 
-    comment_re = re.compile(
-        r'--\s*'
-        r'(?:squabble-)?(enable|disable)'
-        r'(?::\s*(\w+)(.*?))?'
-        r'$', re.I)
-
-    for line in text.splitlines():
+    for line_num, line in enumerate(text.splitlines()):
         line = line.strip()
-
-        m = re.match(comment_re, line)
+        m = re.match(COMMENT_RE, line)
         if m is None:
             continue
 
-        action, rule, opts = m.groups()
+        action, ctx, rule, opts = m.groups()
+        line_specific = ctx is not None
 
         if action == 'disable' and not rule:
-            rules['skip_file'] = True
+            if not line_specific:
+                rules['skip_file'] = True
+            else:
+                # Disregard specific rule for now
+                # Starts with 0, +1 additional line because
+                # we want to skip the *next* line
+                rules['skip_lines'].append(line_num + 2)
 
         elif action == 'disable':
             rules['disable'].append(rule)

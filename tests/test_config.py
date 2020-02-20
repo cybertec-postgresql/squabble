@@ -19,7 +19,8 @@ bar
     expected = {
         'enable': {'foo': {'k1': 'v1', 'k2': 'v2'}},
         'disable': ['abc'],
-        'skip_file': False
+        'skip_file': False,
+        'skip_lines': []
     }
 
     assert expected == rules
@@ -39,7 +40,8 @@ bar
     expected = {
         'enable': {'foo': {'k1': 'v1', 'k2': 'v2'}},
         'disable': ['abc'],
-        'skip_file': True
+        'skip_file': True,
+        'skip_lines': []
     }
 
     assert expected == rules
@@ -74,7 +76,8 @@ def test_apply_file_config(mock_extract):
     mock_extract.return_value = {
         'enable': {'baz': {'a': 1}},
         'disable': ['bar'],
-        'skip_file': False
+        'skip_file': False,
+        'skip_lines': []
     }
 
     orig = config.Config(reporter='', plugins=[], rules={'foo': {}, 'bar': {}}, skip={})
@@ -93,7 +96,8 @@ def test_apply_file_config_with_skip_file(mock_extract):
     mock_extract.return_value = {
         'enable': {},
         'disable': [],
-        'skip_file': True
+        'skip_file': True,
+        'skip_lines': []
     }
 
     orig = config.Config(reporter='', plugins=[], rules={}, skip={'file_name': []})
